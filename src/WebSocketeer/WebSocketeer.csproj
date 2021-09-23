@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Devlooped.Net</RootNamespace>
+    <ImplicitUsings>true</ImplicitUsings>
+    <PackageId>WebSocketeer</PackageId>
+    <Description>High-performance intuitive API for Azure Web PubSub protobuf subprotocol</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
+    <PackageReference Include="System.IO.Pipelines" Version="5.0.1" />
+
+    <PackageReference Include="Google.Protobuf" Version="3.18.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" Pack="false" />
+
+    <PackageReference Include="RxFree" Version="1.0.4" PrivateAssets="all" />
+
+    <PackageReference Include="Azure.Messaging.WebPubSub" Version="1.0.0-beta.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Protobuf Include="*.proto" GrpcServices="Client" />
+    <Using Include="System.Net.WebSockets" />
+    <Using Include="Google.Protobuf" />
+    <Using Include="Azure.Messaging.WebPubSub.Protobuf" />
+  </ItemGroup>
+
+</Project>
