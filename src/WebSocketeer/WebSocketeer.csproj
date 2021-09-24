@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Devlooped.Net</RootNamespace>
-    <ImplicitUsings>true</ImplicitUsings>
     <PackageId>WebSocketeer</PackageId>
     <Description>High-performance intuitive API for Azure Web PubSub protobuf subprotocol</Description>
   </PropertyGroup>
@@ -22,9 +21,6 @@
 
   <ItemGroup>
     <Protobuf Include="*.proto" GrpcServices="Client" />
-    <Using Include="System.Net.WebSockets" />
-    <Using Include="Google.Protobuf" />
-    <Using Include="Azure.Messaging.WebPubSub.Protobuf" />
   </ItemGroup>
 
 </Project>

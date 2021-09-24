@@ -1,6 +1,13 @@
-﻿using System.Buffers;
+﻿using System;
+using System.Buffers;
+using System.Collections.Generic;
 using System.IO.Pipelines;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
+using Azure.Messaging.WebPubSub.Protobuf;
+using Google.Protobuf;
 
 namespace Devlooped.Net;
 
@@ -157,7 +164,9 @@ class DefaultSocketeer : IWebSocketeer
     /// </summary>
     public void Dispose()
     {
-        disposeCancellation.Cancel();
+        if (!disposeCancellation.IsCancellationRequested)
+            disposeCancellation.Cancel();
+
         webSocket.Dispose();
         disposeCancellation.Dispose();
     }
@@ -167,7 +176,9 @@ class DefaultSocketeer : IWebSocketeer
     /// </summary>
     public async ValueTask DisposeAsync()
     {
-        disposeCancellation.Cancel();
+        if (!disposeCancellation.IsCancellationRequested)
+            disposeCancellation.Cancel();
+
         await CloseAsync(WebSocketCloseStatus.NormalClosure);
         Dispose();
     }

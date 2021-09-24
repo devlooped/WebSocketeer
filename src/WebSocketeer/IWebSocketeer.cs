@@ -1,4 +1,9 @@
-﻿namespace Devlooped.Net;
+﻿using System;
+using System.Net.WebSockets;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Devlooped.Net;
 
 /// <summary>
 /// Represents a connected client to the Azure Web PubSub service using the 

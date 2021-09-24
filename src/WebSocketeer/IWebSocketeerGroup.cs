@@ -1,4 +1,7 @@
-﻿namespace Devlooped.Net;
+﻿using System;
+using System.Threading.Tasks;
+
+namespace Devlooped.Net;
 
 /// <summary>
 /// Represents a joined group in an <see cref="IWebSocketeer"/> connection, 
