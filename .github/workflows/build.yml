@@ -70,6 +70,7 @@ jobs:
         shell: bash --noprofile --norc {0}
         env:
           AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
+          LC_ALL: en_US.utf8
         run: |
           counter=0
           exitcode=0
