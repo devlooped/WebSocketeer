@@ -78,7 +78,6 @@ jobs:
           AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
           LC_ALL: en_US.utf8
         run: |
-          # get GNU grep in path under macOS if profile is present from previous step
           [ -f .bash_profile ] && source .bash_profile
           counter=0
           exitcode=0
