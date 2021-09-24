@@ -67,7 +67,7 @@ jobs:
         run: dotnet build -m:1 -p:VersionLabel="$GITHUB_REF.$GITHUB_RUN_NUMBER"
 
       - name: 🧪 test
-        shell: bash {0}
+        shell: bash --noprofile --norc {0}
         env:
           AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
         run: |
