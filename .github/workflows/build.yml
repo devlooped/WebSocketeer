@@ -67,11 +67,10 @@ jobs:
         run: dotnet build -m:1 -p:VersionLabel="$GITHUB_REF.$GITHUB_RUN_NUMBER"
 
       - name: 🧪 test
-        shell: bash
+        shell: bash {0}
         env:
           AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
         run: |
-          #!/bin/bash
           counter=0
           exitcode=0
           reset="\e[0m"
