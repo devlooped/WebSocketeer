@@ -1,6 +1,4 @@
-﻿using System.Net.WebSockets;
-
-namespace Devlooped.Net;
+﻿namespace Devlooped.Net;
 
 /// <summary>
 /// Factory class for <see cref="IWebSocketeer"/> instances.

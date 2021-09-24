@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace Devlooped.Net;
+﻿namespace Devlooped.Net;
 
 class DefaultSocketeerGroup : IWebSocketeerGroup
 {

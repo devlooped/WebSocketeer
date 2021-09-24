@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>true</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,5 +21,17 @@
     <None Include=".netconfig.user" CopyToOutputDirectory="PreserveNewest" Condition="Exists('.netconfig.user')" />
     <None Update="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <Using Include="System.Buffers" />
+    <Using Include="System.IO.Pipelines" />
+    <Using Include="System.Net.WebSockets" />
+    <Using Include="System.Text" />
+    <Using Include="Xunit"/>
+    <Using Include="Xunit.Abstractions"/>
+    <Using Include="Azure.Messaging.WebPubSub" />
+    <Using Include="DotNetConfig"/>
+  </ItemGroup>
+
 </Project>
+ 

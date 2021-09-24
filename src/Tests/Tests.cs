@@ -1,15 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.WebSockets;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Azure.Messaging.WebPubSub;
-using DotNetConfig;
-using Xunit;
-using Xunit.Abstractions;
-
-namespace Devlooped.Net;
+﻿namespace Devlooped.Net;
 
 public record Tests(ITestOutputHelper Output)
 {

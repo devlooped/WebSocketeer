@@ -1,15 +1,4 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Net.WebSockets;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Threading.Tasks.Sources;
-using Azure.Messaging.WebPubSub.Protobuf;
-using Google.Protobuf;
-
-namespace Devlooped.Net;
+﻿namespace Devlooped.Net;
 
 class DefaultSocketeer : IWebSocketeer
 {
@@ -210,43 +199,5 @@ class DefaultSocketeer : IWebSocketeer
 
         // Don't wait indefinitely for the close to be acknowledged
         await Task.WhenAny(closeTask, Task.Delay(closeTimeout));
-    }
-
-    class CombinedValueTaskSource : IValueTaskSource
-    {
-        ValueTask first;
-        ValueTask second;
-
-        public CombinedValueTaskSource(ValueTask first, ValueTask second)
-        {
-            this.first = first;
-            this.second = second;
-        }
-
-        public void GetResult(short token)
-        {
-            first.GetAwaiter().GetResult();
-            second.GetAwaiter().GetResult();
-        }
-
-        public ValueTaskSourceStatus GetStatus(short token)
-        {
-            if (!first.IsCompleted || !second.IsCompleted)
-                return ValueTaskSourceStatus.Pending;
-
-            if (first.IsFaulted || second.IsFaulted)
-                return ValueTaskSourceStatus.Faulted;
-
-            if (first.IsCanceled || second.IsCanceled)
-                return ValueTaskSourceStatus.Canceled;
-
-            if (first.IsCompletedSuccessfully && second.IsCompletedSuccessfully)
-                return ValueTaskSourceStatus.Succeeded;
-
-            throw new InvalidOperationException("Could not determine status.");
-        }
-
-        public void OnCompleted(Action<object?> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
-            => throw new NotImplementedException();
     }
 }
