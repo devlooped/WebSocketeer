@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>Devlooped.Net</RootNamespace>
     <PackageId>WebSocketeer</PackageId>
     <Description>High-performance intuitive API for Azure Web PubSub protobuf subprotocol</Description>
