@@ -14,9 +14,6 @@ namespace Devlooped.Net;
 public record Tests(ITestOutputHelper Output)
 {
     [Fact]
-    public void FailsAlways() => Assert.False(true, "Will never pass");
-
-    [Fact]
     public async Task PingPong()
     {
         string? message = default;
