@@ -18,6 +18,21 @@
 public interface IWebSocketeer : IAsyncDisposable, IDisposable
 {
     /// <summary>
+    /// The connection identifier for this connected client.
+    /// </summary>
+    string ConnectionId { get; }
+
+    /// <summary>
+    /// The user identifier for this connected client.
+    /// </summary>
+    string UserId { get; }
+
+    /// <summary>
+    /// Gets the underlying <see cref="WebSocket"/> status.
+    /// </summary>
+    public WebSocketStatus SocketStatus { get; }
+
+    /// <summary>
     /// Joins a group and returns an <see cref="IWebSocketeerGroup"/> to 
     /// send and receive messages within the group.
     /// </summary>
@@ -46,7 +61,8 @@ public interface IWebSocketeer : IAsyncDisposable, IDisposable
     /// <param name="cancellation">Optional cancellation token to cancel the process.</param>
     /// <remarks>
     /// The returned task completes if the instance is disposed (either via <see cref="IDisposable"/> or 
-    /// <see cref="IAsyncDisposable"/>).
+    /// <see cref="IAsyncDisposable"/>) or the underlying <see cref="WebSocket"/> is closed (by the client or the 
+    /// server).
     /// </remarks>
-    Task RunAsync(CancellationToken cancellation = default);
+    Task StartAsync(CancellationToken cancellation = default);
 }

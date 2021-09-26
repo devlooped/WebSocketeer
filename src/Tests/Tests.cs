@@ -7,13 +7,25 @@ public record Tests(ITestOutputHelper Output)
     {
         string? message = default;
 
-        var cancellation = new CancellationTokenSource();
-        await using var pingerSocketeer = WebSocketeer.Create(await ConnectAsync());
-        var pingerTask = Task.Run(() => pingerSocketeer.RunAsync(cancellation.Token));
+        using var cancellation = new CancellationTokenSource();
+        await using var pingerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        var pingerTask = Task.Run(() => pingerSocketeer.StartAsync(cancellation.Token));
         var pongEv = new ManualResetEventSlim();
 
         // Pongs come through the 'pong' group. 
         var pongs = await pingerSocketeer.JoinAsync("pong").ConfigureAwait(false);
+
+        var setEv = new ManualResetEventSlim();
+        _ = Task.Run(() =>
+        {
+            while (pingerSocketeer.ConnectionId == null || pingerSocketeer.UserId == null)
+                Thread.Sleep(50);
+
+            setEv.Set();
+        }, cancellation.Token);
+
+        Assert.True(setEv.Wait(500), "Should have set ConnectionId and UserId before timeout");
+
         pongs.Subscribe(async x =>
         {
             message = Encoding.UTF8.GetString(x.Span);
@@ -22,12 +34,24 @@ public record Tests(ITestOutputHelper Output)
             pongEv.Set();
         });
 
-        await using var pongerSocketeer = WebSocketeer.Create(await ConnectAsync());
-        var pongerTask = Task.Run(() => pongerSocketeer.RunAsync(cancellation.Token));
+        await using var pongerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        var pongerTask = Task.Run(() => pongerSocketeer.StartAsync(cancellation.Token));
         var pingEv = new ManualResetEventSlim();
 
         // Pings come through the 'ping' group.
         var pings = await pongerSocketeer.JoinAsync("ping").ConfigureAwait(false);
+
+        setEv.Reset();
+        _ = Task.Run(() =>
+        {
+            while (pongerSocketeer.ConnectionId == null || pongerSocketeer.UserId == null)
+                Thread.Sleep(50);
+
+            setEv.Set();
+        }, cancellation.Token);
+
+        Assert.True(setEv.Wait(500), "Should have set ConnectionId and UserId before timeout");
+
         // Send pongs to the 'pong' responses group.
         pings.Subscribe(async x =>
         {
@@ -51,8 +75,8 @@ public record Tests(ITestOutputHelper Output)
     [Fact]
     public async Task DisposingSocketeerCompletesRunTask()
     {
-        var socketeer = WebSocketeer.Create(await ConnectAsync());
-        var runTask = Task.Run(async () => await socketeer.RunAsync());
+        var socketeer = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        var runTask = Task.Run(async () => await socketeer.StartAsync());
 
         socketeer.Dispose();
 
@@ -67,11 +91,11 @@ public record Tests(ITestOutputHelper Output)
         var messages = new List<string>();
 
         var cancellation = new CancellationTokenSource();
-        await using var server = WebSocketeer.Create(await ConnectAsync());
-        _ = Task.Run(() => server.RunAsync(cancellation.Token));
+        await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => server.StartAsync(cancellation.Token));
 
-        await using var client = WebSocketeer.Create(await ConnectAsync());
-        _ = Task.Run(() => client.RunAsync(cancellation.Token));
+        await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => client.StartAsync(cancellation.Token));
 
         var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup));
         var ev = new ManualResetEventSlim();
@@ -103,8 +127,8 @@ public record Tests(ITestOutputHelper Output)
     {
         var messages = new List<string>();
 
-        await using var client = WebSocketeer.Create(await ConnectAsync());
-        _ = Task.Run(() => client.RunAsync());
+        await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => client.StartAsync());
 
         var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenGetsOwnMessagesToGroup));
         var ev = new ManualResetEventSlim();
