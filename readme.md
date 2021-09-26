@@ -31,8 +31,8 @@ await using IWebSocketeer socketeer = WebSockeer.ConnectAsync(serviceUri);
 
 
 At this point, the `socketeer` variable contains a properly connected 
-Web PubSub client, and you can inspect its `ConnectionId` and `UserId`, 
-for example. 
+Web PubSub client, and you can inspect its `ConnectionId` and `UserId`
+properties, for example. 
 
 Next step is perhaps to join some groups:
 
@@ -44,7 +44,7 @@ The `IWebSocketeerGroup` is an observable of `ReadOnlyMemory<byte>`, exposing
 the incoming messages to that group, and it also provides a 
 `SendAsync(ReadOnlyMemory<byte> message)` method to post messages to the group.
 
-To write all incoming messages to the group to the console, you could 
+To write all incoming messages for the group to the console, you could 
 write:
 
 ```csharp
@@ -79,8 +79,6 @@ and pass it to the `WebSocketeer.ConnectAsync(WebSocket, CancellationToken)` ove
 
 In this case, it's important to remember to add the `protobuf.webpubsub.azure.v1` 
 required subprotocol:
-
-```csharp
 
 ```csharp
 using Devlooped.Net;
