@@ -18,19 +18,13 @@ var serviceUri = serviceClient.GenerateClientAccessUri(
     });
 ```
 
-Next you can either create and connect a `WebSocket` to it yourself and 
-pass it to `WebSocketeer.ConnectAsync(WebSocket, CancellationToken)`.
-
-> NOTE: if you create the `WebSocket` and connect it yourself, please 
-> make sure to add the `protobuf.webpubsub.azure.v1` subprotocol.
-
-Alternatively, you can just pass in the `Uri` to the `ConnectAsync` overload:
+Next simply connect the `WebSocketeer`:
 
 ```csharp
 await using IWebSocketeer socketeer = WebSockeer.ConnectAsync(serviceUri);
 ```
 
-> NOTE: the `IWebSocketeer` interface implements both `IAsyncDisposable`, 
+> Note: the `IWebSocketeer` interface implements both `IAsyncDisposable`, 
 > which allows the `await using` pattern above, but also the regular 
 > `IDisposable` interface. The former will perform a graceful `WebSocket` 
 > disconnect/close.
@@ -76,3 +70,26 @@ method too:
 ```csharp
 await socketeer.SendAsync("YourGroup", Encoding.UTF8.GetBytes("Hello World"));
 ```
+
+### Handling the WebSocket
+
+You can alternatively handle the `WebSocket` yourself. Instead of passing the 
+service `Uri` to `ConnectAsync`, you can create and connect a `WebSocket` manually 
+and pass it to the `WebSocketeer.ConnectAsync(WebSocket, CancellationToken)` overload.
+
+In this case, it's important to remember to add the `protobuf.webpubsub.azure.v1` 
+required subprotocol:
+
+```csharp
+
+```csharp
+using Devlooped.Net;
+
+var client = new ClientWebSocket();
+client.Options.AddSubProtocol("protobuf.webpubsub.azure.v1");
+
+await client.ConnectAsync(serverUri, CancellationToken.None);
+
+await using var socketeer = WebSocketeer.ConnectAsync(client);
+```
+
