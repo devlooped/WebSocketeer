@@ -4,7 +4,7 @@ High-performance intuitive API for Azure Web PubSub protobuf subprotocol
 
 ## Usage
 
-First acquire a propery client access URI for Azure Web PubSub using the 
+First acquire a proper client access URI for Azure Web PubSub using the 
 official client API, such as:
 
 ```csharp
