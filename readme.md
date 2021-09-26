@@ -2,6 +2,29 @@
 
 High-performance intuitive API for Azure Web PubSub protobuf subprotocol
 
+# Why
+
+Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/azure-web-pubsub/reference-protobuf-webpubsub-subprotocol) 
+is super awesome and general purpose and I can see endless applications 
+for this new service from Azure. The message-based nature of its "API" is 
+not very intuitive or idiomatic for a dotnet developer though, I think. 
+
+I wanted to create a super thin layer on top that didn't incur unnecessary 
+allocations or buffer handling or extra threads, since that would detract 
+from the amazing work on performance that .NET 5 (and 6!) are bringing to 
+the table. I use the [best practices](https://docs.microsoft.com/en-us/aspnet/core/grpc/performance?view=aspnetcore-5.0#send-binary-payloads) 
+for sending binary payloads using low-level (and quite new!) protobuf 
+APIs for avoiding unnecessary buffer creation/handling.
+
+In order to also squeeze every bit of performance, this project uses the 
+protobuf subprotocol exclusively, even though there is support in the service 
+for [JSON](https://docs.microsoft.com/en-us/azure/azure-web-pubsub/reference-json-webpubsub-subprotocol) 
+payloads.
+
+The actual binary payloads you send/receive can of course be decoded into 
+any format you need, including JSON if you just encode/decode it as UTF8 bytes.
+
+
 ## Usage
 
 First acquire a proper client access URI for Azure Web PubSub using the 
