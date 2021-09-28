@@ -123,6 +123,55 @@ public record Tests(ITestOutputHelper Output)
     }
 
     [Fact]
+    public async Task WhenGroupJoined_ThenCanGetSecondJoinedGroup()
+    {
+        var messages = new List<string>();
+
+        var cancellation = new CancellationTokenSource();
+        await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+
+        await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+
+        var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup));
+        var ev = new ManualResetEventSlim();
+
+        var subs = group.Subscribe(x =>
+        {
+            messages.Add(Encoding.UTF8.GetString(x.Span));
+            ev.Set();
+        });
+
+        await server.SendAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup), Encoding.UTF8.GetBytes("first"));
+
+        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.Single(messages);
+        Assert.Equal("first", messages[0]);
+
+        ev.Reset();
+
+        // Stop listening from the JoinAsync group.
+        subs.Dispose();
+
+        client.Joined(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup))
+            .Subscribe(x =>
+            {
+                messages.Add(Encoding.UTF8.GetString(x.Span));
+                ev.Set();
+            });
+
+        await server.SendAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup), Encoding.UTF8.GetBytes("second"));
+
+        Assert.True(ev.Wait(1000), "Expected second group client to receive message before timeout.");
+        Assert.Equal(2, messages.Count);
+        Assert.Equal("second", messages[1]);
+
+        cancellation.Cancel();
+    }
+
+
+    [Fact]
     public async Task WhenGroupJoined_ThenGetsOwnMessagesToGroup()
     {
         var messages = new List<string>();
