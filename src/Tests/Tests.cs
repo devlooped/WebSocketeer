@@ -153,6 +153,45 @@ public record Tests(ITestOutputHelper Output)
         Assert.Equal("second", messages[1]);
     }
 
+    [Fact]
+    public async Task CanSubscribeToAllMessagesFromAnyGroup()
+    {
+        var messages = new List<string>();
+
+        var cancellation = new CancellationTokenSource();
+        await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+
+        await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+
+        var ev = new ManualResetEventSlim();
+
+        // NOTE: the client still needs to join the groups in order for messages to be received
+        await client.JoinAsync(nameof(CanSubscribeToAllMessagesFromAnyGroup));
+        await client.JoinAsync(nameof(CanSubscribeToAllMessagesFromAnyGroup) + "2");
+
+        client.Subscribe(x =>
+        {
+            messages.Add(Encoding.UTF8.GetString(x.Value.Span));
+            ev.Set();
+        });
+
+        await server.SendAsync(nameof(CanSubscribeToAllMessagesFromAnyGroup), Encoding.UTF8.GetBytes("first"));
+
+        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.Single(messages);
+        Assert.Equal("first", messages[0]);
+
+        ev.Reset();
+        await server.SendAsync(nameof(CanSubscribeToAllMessagesFromAnyGroup) + "2", Encoding.UTF8.GetBytes("second"));
+
+        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.Equal(2, messages.Count);
+        Assert.Equal("second", messages[1]);
+
+        cancellation.Cancel();
+    }
 
     static readonly Config Configuration = Config.Build();
 

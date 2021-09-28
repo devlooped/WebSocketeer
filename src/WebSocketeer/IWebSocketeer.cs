@@ -14,8 +14,12 @@
 /// be gracefully closed before being disposed. <see cref="IDisposable.Dispose"/>, 
 /// on the other hand, will just dispose the <see cref="WebSocket"/>.
 /// </para>
+/// <para>
+/// Incoming messages can be accessed by either joining a group via <see cref="JoinAsync"/> 
+/// and subscribing to it or directly by subscribing to the entire <see cref="IWebSocketeer"/>.
+/// </para>
 /// </remarks>
-public interface IWebSocketeer : IAsyncDisposable, IDisposable
+public interface IWebSocketeer : IObservable<KeyValuePair<string, ReadOnlyMemory<byte>>>, IAsyncDisposable, IDisposable
 {
     /// <summary>
     /// The connection identifier for this connected client.

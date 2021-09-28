@@ -15,7 +15,7 @@
     <PackageReference Include="Google.Protobuf" Version="3.18.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.38.0" Pack="false" />
 
-    <PackageReference Include="RxFree" Version="1.0.4" PrivateAssets="all" />
+    <PackageReference Include="RxFree" Version="1.0.5" PrivateAssets="all" />
 
     <PackageReference Include="Azure.Messaging.WebPubSub" Version="1.0.0-beta.3" />
   </ItemGroup>

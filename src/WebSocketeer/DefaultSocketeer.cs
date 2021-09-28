@@ -150,6 +150,9 @@ class DefaultSocketeer : IWebSocketeer
         writeBuffer.Clear();
     }
 
+    public IDisposable Subscribe(IObserver<KeyValuePair<string, ReadOnlyMemory<byte>>> observer)
+        => messages.Subscribe(observer);
+
     async Task ReadInputAsync(CancellationToken cancellation = default)
     {
         while (webSocket.State == WebSocketState.Open && !cancellation.IsCancellationRequested)
