@@ -94,6 +94,83 @@ method too:
 await socketeer.SendAsync("YourGroup", Encoding.UTF8.GetBytes("Hello World"));
 ```
 
+## Advanced Scenarios
+
+### Split Request/Response Groups
+
+You may want to simulate request/response communication patterns over the 
+socketeer. In cases like this, you would typically have:
+
+- Server joined to a client-specific group, such as `SERVER_ID-CLIENT_ID` 
+  (with a `[TO]-[FROM]` format, so, TO=server, FROM=client)
+- Server replying to requests in that group by sending responses to 
+  `CLIENT_ID-SERVER_ID` (TO=client, FROM=server);
+- Client joined to the responses group `CLIENT_ID-SERVER_ID` and sending 
+  requests as needed to `SERVER_ID-CLIENT_ID`.
+
+Note that the client *cannot* join the `SERVER_ID-CLIENT_ID` group because 
+otherwise it would *also* receive its own messages that are intended for the 
+server only. Likewise, the server cannot join the `CLIENT_ID-SERVER_ID` group 
+either. This is why this pattern might be more common than it would otherwise
+seem.
+
+Server-side:
+
+```csharp
+IWebSocketeer socketeer = ...;
+var serverId = socketeer.UserId;
+
+// Perhaps from an initial exchange over a shared channel
+var clientId = ...;
+
+await using IWebSocketeerGroup clientChannel = socketeer.Split(
+    await socketeer.JoinAsync($"{serverId}-{clientId}"), 
+    $"{clientId}-{serverId}");
+
+clientChannel.Subscribe(async x => 
+{
+    // do some processing on incoming requests.
+    ...
+    // send a response via the outgoing group
+    await clientChannel.SendAsync(response);
+});
+```
+
+Client-side:
+
+```csharp
+IWebSocketeer socketeer = ...;
+var clientId = socketeer.UserId;
+
+// Perhaps a known identifier, or looked up somehow
+var serverId = ...;
+
+await using IWebSocketeerGroup serverChannel = socketeer.Split(
+    await socketeer.JoinAsync($"{clientId}-{serverId}""), 
+    $"{serverId}-{clientId}");
+
+serverChannel.Subscribe(async x => /* process responses */);
+await serverChannel.SendAsync(request);
+```
+
+## Advanced Scenarios
+
+### Accessing Joined Group
+
+Sometimes, it's useful to perform group join up-front, but at some 
+later time you might also need to get the previously joined group 
+from the same `IWebSocketeer` instance. 
+
+```csharp
+IWebSocketeer socketeer = /* connect, join some groups, etc. */;
+
+// If group hasn't been joined previously, no incoming messages 
+// will arrive.
+IWebSocketeerGroup group = socketeer.Joined("incoming");
+group.Subscribe(x => /* process incoming */);
+```
+
+
 ### Handling the WebSocket
 
 You can alternatively handle the `WebSocket` yourself. Instead of passing the 
