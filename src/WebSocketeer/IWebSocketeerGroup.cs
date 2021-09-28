@@ -24,5 +24,5 @@ public interface IWebSocketeerGroup : IObservable<ReadOnlyMemory<byte>>, IAsyncD
     /// <summary>
     /// Sends a message to the group.
     /// </summary>
-    ValueTask SendAsync(ReadOnlyMemory<byte> message);
+    ValueTask SendAsync(ReadOnlyMemory<byte> message, CancellationToken cancellation = default);
 }

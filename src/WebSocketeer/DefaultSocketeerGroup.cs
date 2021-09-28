@@ -22,8 +22,8 @@ class DefaultSocketeerGroup : IWebSocketeerGroup
     public IDisposable Subscribe(IObserver<ReadOnlyMemory<byte>> observer)
         => messages.Subscribe(observer);
 
-    public ValueTask SendAsync(ReadOnlyMemory<byte> message)
-        => socketeer.SendAsync(Name, message);
+    public ValueTask SendAsync(ReadOnlyMemory<byte> message, CancellationToken cancellation = default)
+        => socketeer.SendAsync(Name, message, cancellation);
 
     public async ValueTask DisposeAsync()
     {
