@@ -10,7 +10,7 @@
     <PackageReference Include="xunit" Version="2.4.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" PrivateAssets="all" />
     <PackageReference Include="DotNetConfig" Version="1.0.6" />
-    <PackageReference Include="RxFree" Version="1.0.5" PrivateAssets="all" />
+    <PackageReference Include="System.Reactive" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,10 +27,10 @@
     <Using Include="System.IO.Pipelines" />
     <Using Include="System.Net.WebSockets" />
     <Using Include="System.Text" />
-    <Using Include="Xunit"/>
-    <Using Include="Xunit.Abstractions"/>
+    <Using Include="Xunit" />
+    <Using Include="Xunit.Abstractions" />
     <Using Include="Azure.Messaging.WebPubSub" />
-    <Using Include="DotNetConfig"/>
+    <Using Include="DotNetConfig" />
   </ItemGroup>
 
 </Project>

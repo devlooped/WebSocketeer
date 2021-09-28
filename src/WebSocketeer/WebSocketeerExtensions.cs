@@ -17,15 +17,65 @@ public static class WebSocketeerExtensions
     /// for that group.
     /// </remarks>
     public static IWebSocketeerGroup Joined(this IWebSocketeer socketeer, string group)
-        => new FilteredGroup(group, socketeer);
+        => new JoinedGroup(group, socketeer);
 
-    class FilteredGroup : IWebSocketeerGroup
+    /// <summary>
+    /// Gets a virtual group that receives messages from one group but sends messages 
+    /// to a different group (i.e. via distinct request/response groups).
+    /// </summary>
+    /// <param name="socketeer">The <see cref="IWebSocketeer"/> that contains the joined <paramref name="incomingJoinedGroup"/>.</param>
+    /// <param name="incomingJoinedGroup">The group to receive incoming messages through. Must have been previously joined 
+    /// via <see cref="IWebSocketeer.JoinAsync"/>.</param>
+    /// <param name="outgoingGroup">Name of the group to use for sending messages via <see cref="IWebSocketeerGroup.SendAsync"/>.</param>
+    /// <remarks>
+    /// The <see cref="IWebSocketeer"/> must have previously joined the <paramref name="incomingJoinedGroup"/> group in order for 
+    /// the resulting <see cref="IWebSocketeerGroup"/> to actually receive incoming messages 
+    /// for that group.
+    /// </remarks>
+    public static IWebSocketeerGroup Split(this IWebSocketeer socketeer, string incomingJoinedGroup, string outgoingGroup)
+        => new SplitGroup(socketeer, socketeer.Joined(incomingJoinedGroup), outgoingGroup);
+
+    /// <summary>
+    /// Gets a virtual group that receives messages from one group but sends messages 
+    /// to a different group (i.e. via distinct request/response groups).
+    /// </summary>
+    /// <param name="socketeer">The <see cref="IWebSocketeer"/> for the underlying communications.</param>
+    /// <param name="incomingGroup">The group to receive incoming messages through.</param>
+    /// <param name="outgoingGroup">Name of the group to use for sending messages via <see cref="IWebSocketeerGroup.SendAsync"/>.</param>
+    public static IWebSocketeerGroup Split(this IWebSocketeer socketeer, IWebSocketeerGroup incomingGroup, string outgoingGroup)
+        => new SplitGroup(socketeer, incomingGroup, outgoingGroup);
+
+    class SplitGroup : IWebSocketeerGroup
+    {
+        readonly IWebSocketeer socketeer;
+        readonly string outgoing;
+        readonly IWebSocketeerGroup incoming;
+
+        public SplitGroup(IWebSocketeer socketeer, IWebSocketeerGroup incoming, string outgoing)
+        {
+            this.socketeer = socketeer;
+            this.incoming = incoming;
+            this.outgoing = outgoing;
+        }
+
+        public string Name => incoming.Name + "<->" + outgoing;
+
+        public ValueTask DisposeAsync() => incoming.DisposeAsync();
+
+        public ValueTask SendAsync(ReadOnlyMemory<byte> message, CancellationToken cancellation = default)
+            => socketeer.SendAsync(outgoing, message, cancellation);
+
+        public IDisposable Subscribe(IObserver<ReadOnlyMemory<byte>> observer)
+            => incoming.Subscribe(observer);
+    }
+
+    class JoinedGroup : IWebSocketeerGroup
     {
         readonly CompositeDisposable disposables = new();
         readonly IWebSocketeer socketeer;
         readonly IObservable<ReadOnlyMemory<byte>> group;
 
-        public FilteredGroup(string name, IWebSocketeer socketeer)
+        public JoinedGroup(string name, IWebSocketeer socketeer)
         {
             Name = name;
             this.socketeer = socketeer;

@@ -1,4 +1,7 @@
-﻿namespace Devlooped.Net;
+﻿using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+
+namespace Devlooped.Net;
 
 public record Tests(ITestOutputHelper Output)
 {
@@ -170,7 +173,6 @@ public record Tests(ITestOutputHelper Output)
         cancellation.Cancel();
     }
 
-
     [Fact]
     public async Task WhenGroupJoined_ThenGetsOwnMessagesToGroup()
     {
@@ -239,6 +241,42 @@ public record Tests(ITestOutputHelper Output)
         Assert.Equal(2, messages.Count);
         Assert.Equal("second", messages[1]);
 
+        cancellation.Cancel();
+    }
+
+    [Fact]
+    public async Task CanSimulateRequestResponseViaGroups()
+    {
+        var messages = new List<string>();
+
+        var cancellation = new CancellationTokenSource();
+        await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+
+        await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
+        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+
+        // Group ID format is To-From. 
+        // So for the server, incoming = Server-Client, outgoing = Client-Server
+        var serverChannel = server.Split(await server.JoinAsync(server.UserId + "-" + client.UserId), client.UserId + "-" + server.UserId);
+        var clientChannel = client.Split(await client.JoinAsync(client.UserId + "-" + server.UserId), server.UserId + "-" + client.UserId);
+
+        // Server listens on the incoming group and sends replies via the outgoing one.
+        serverChannel.ObserveOn(TaskPoolScheduler.Default).Subscribe(async x => await serverChannel.SendAsync(x));
+
+        var ev = new ManualResetEventSlim();
+
+        clientChannel.ObserveOn(TaskPoolScheduler.Default).Subscribe(x =>
+        {
+            messages.Add(Encoding.UTF8.GetString(x.Span));
+            ev.Set();
+        });
+
+        await clientChannel.SendAsync(Encoding.UTF8.GetBytes("ping"));
+
+        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.Single(messages);
+        Assert.Equal("ping", messages[0]);
         cancellation.Cancel();
     }
 
