@@ -1,5 +1,13 @@
 
 
+## [v0.9.0-beta](https://github.com/devlooped/WebSocketeer/tree/v0.9.0-beta) (2021-10-15)
+
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v0.9.0-alpha...v0.9.0-beta)
+
+:sparkles: Implemented enhancements:
+
+- Cleanup unused dependencies, improve packaging [\#10](https://github.com/devlooped/WebSocketeer/issues/10)
+
 ## [v0.9.0-alpha](https://github.com/devlooped/WebSocketeer/tree/v0.9.0-alpha) (2021-10-15)
 
 [Full Changelog](https://github.com/devlooped/WebSocketeer/compare/9469bf1ba55da01bce1e580bea52a67333993a64...v0.9.0-alpha)
