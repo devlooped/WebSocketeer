@@ -119,8 +119,8 @@
 	weak
 [file "src/Directory.Build.targets"]
 	url = https://github.com/devlooped/oss/blob/main/src/Directory.Build.targets
-	sha = e2606657b68d2980cc3cae181c59baa3d847ab75
-	etag = a69e9c33e8b3efde55f99aa22a3c5a8db371cf5142f7db78e4e2984d805f287e
+	sha = bfe0f2a2a668878931f43b7280f0406a2171ff0c
+	etag = 46287392cb21e28595b1ea658236b8afa15f985c9f75dc08ed85e81a2c465755
 	weak
 [file "src/kzu.snk"]
 	url = https://github.com/devlooped/oss/blob/main/src/kzu.snk
@@ -151,14 +151,4 @@
 	url = https://github.com/devlooped/.github/blob/main/Gemfile
 	sha = f2dc1370469bec1b2d32d82faf659b050cdc7e2a
 	etag = d45832acd078778ffebf260000f6d25172a131f51684744d7e982da2a47170ce
-	weak
-[file "src/WebSocketeer/External/WebSocketChannel.cs"]
-	url = https://github.com/devlooped/WebSocketChannel/blob/main/src/WebSocketChannel/WebSocketChannel.cs
-	sha = 0cd97791af56be1f069743bb38ca18173f4e82d8
-	etag = b9af10751c812cc07e84336ac6c5c89cdaa3165c6b25f7d41919a1788f6ba505
-	weak
-[file "src/WebSocketeer/External/WebSocketExtensions.cs"]
-	url = https://github.com/devlooped/WebSocketChannel/blob/main/src/WebSocketChannel/WebSocketExtensions.cs
-	sha = 0cd97791af56be1f069743bb38ca18173f4e82d8
-	etag = c5c33ee4ddedd000a5ce01dfd458ef0fd8a9302fffa1da99e8c1dad1dd0b255c
 	weak
