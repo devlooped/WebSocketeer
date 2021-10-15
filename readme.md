@@ -47,10 +47,10 @@ Next simply connect the `WebSocketeer`:
 await using IWebSocketeer socketeer = WebSockeer.ConnectAsync(serviceUri);
 ```
 
-> Note: the `IWebSocketeer` interface implements both `IAsyncDisposable`, 
+> NOTE: the `IWebSocketeer` interface implements both `IAsyncDisposable`, 
 > which allows the `await using` pattern above, but also the regular 
 > `IDisposable` interface. The former will perform a graceful `WebSocket` 
-> disconnect/close.
+> disconnect/close. The latter will simply dispose the underlying `WebSocket`.
 
 
 At this point, the `socketeer` variable contains a properly connected 
@@ -76,15 +76,16 @@ using var subscription = group.Subscribe(bytes =>
 ```
 
 In order to start processing incoming messages, though, you need to start 
-the socketeer first. This would typically be done on a separate thread, using 
-`Task.Run`, for example:
+the socketeer "message loop" first. This would typically be done on a separate thread, 
+using `Task.Run`, for example:
 
 ```csharp
-var started = Task.Run(() => socketeer.StartAsync());
+var started = Task.Run(() => socketeer.RunAsync());
 ```
 
-The `StartAsync` task will remain in progress until the socketeer is disposed, 
-or the underlying `WebSocket` is closed (either by the client or the server).
+The returned task from `RunAsync` will remain in progress until the socketeer is disposed, 
+or the underlying `WebSocket` is closed (either by the client or the server), or when an 
+optional cancellation token passed to it is cancelled.
 
 You can also send messages to a group you haven't joined (provided the roles 
 specified when opening the connection allow it) via the `IWebSocketeer.SendAsync` 
@@ -96,10 +97,46 @@ await socketeer.SendAsync("YourGroup", Encoding.UTF8.GetBytes("Hello World"));
 
 ## Advanced Scenarios
 
+### Accessing Joined Group
+
+Sometimes, it's useful to perform group join up-front, but at some 
+later time you might also need to get the previously joined group 
+from the same `IWebSocketeer` instance. 
+
+```csharp
+IWebSocketeer socketeer = /* connect, join some groups, etc. */;
+
+// If group hasn't been joined previously, no incoming messages would arrive in this case.
+IWebSocketeerGroup group = socketeer.Joined("incoming");
+group.Subscribe(x => /* process incoming */);
+```
+
+
+### Handling the WebSocket
+
+You can alternatively handle the `WebSocket` yourself. Instead of passing the 
+service `Uri` to `ConnectAsync`, you can create and connect a `WebSocket` manually 
+and pass it to the `WebSocketeer.ConnectAsync(WebSocket, CancellationToken)` overload.
+
+In this case, it's important to remember to add the `protobuf.webpubsub.azure.v1` 
+required subprotocol:
+
+```csharp
+using Devlooped.Net;
+
+var client = new ClientWebSocket();
+client.Options.AddSubProtocol("protobuf.webpubsub.azure.v1");
+
+await client.ConnectAsync(serverUri, CancellationToken.None);
+
+await using var socketeer = WebSocketeer.ConnectAsync(client);
+```
+
+
 ### Split Request/Response Groups
 
 You may want to simulate request/response communication patterns over the 
-socketeer. In cases like this, you would typically have:
+socketeer. In cases like this, you would typically do the following:
 
 - Server joined to a client-specific group, such as `SERVER_ID-CLIENT_ID` 
   (with a `[TO]-[FROM]` format, so, TO=server, FROM=client)
@@ -108,7 +145,7 @@ socketeer. In cases like this, you would typically have:
 - Client joined to the responses group `CLIENT_ID-SERVER_ID` and sending 
   requests as needed to `SERVER_ID-CLIENT_ID`.
 
-Note that the client *cannot* join the `SERVER_ID-CLIENT_ID` group because 
+Note that the client *must not* join the `SERVER_ID-CLIENT_ID` group because 
 otherwise it would *also* receive its own messages that are intended for the 
 server only. Likewise, the server cannot join the `CLIENT_ID-SERVER_ID` group 
 either. This is why this pattern might be more common than it would otherwise
@@ -146,48 +183,9 @@ var clientId = socketeer.UserId;
 var serverId = ...;
 
 await using IWebSocketeerGroup serverChannel = socketeer.Split(
-    await socketeer.JoinAsync($"{clientId}-{serverId}""), 
+    await socketeer.JoinAsync($"{clientId}-{serverId}""),
     $"{serverId}-{clientId}");
 
 serverChannel.Subscribe(async x => /* process responses */);
 await serverChannel.SendAsync(request);
 ```
-
-## Advanced Scenarios
-
-### Accessing Joined Group
-
-Sometimes, it's useful to perform group join up-front, but at some 
-later time you might also need to get the previously joined group 
-from the same `IWebSocketeer` instance. 
-
-```csharp
-IWebSocketeer socketeer = /* connect, join some groups, etc. */;
-
-// If group hasn't been joined previously, no incoming messages 
-// will arrive.
-IWebSocketeerGroup group = socketeer.Joined("incoming");
-group.Subscribe(x => /* process incoming */);
-```
-
-
-### Handling the WebSocket
-
-You can alternatively handle the `WebSocket` yourself. Instead of passing the 
-service `Uri` to `ConnectAsync`, you can create and connect a `WebSocket` manually 
-and pass it to the `WebSocketeer.ConnectAsync(WebSocket, CancellationToken)` overload.
-
-In this case, it's important to remember to add the `protobuf.webpubsub.azure.v1` 
-required subprotocol:
-
-```csharp
-using Devlooped.Net;
-
-var client = new ClientWebSocket();
-client.Options.AddSubProtocol("protobuf.webpubsub.azure.v1");
-
-await client.ConnectAsync(serverUri, CancellationToken.None);
-
-await using var socketeer = WebSocketeer.ConnectAsync(client);
-```
-

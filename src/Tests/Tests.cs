@@ -32,8 +32,8 @@ public record Tests(ITestOutputHelper Output)
 
         await using var pongerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync().ConfigureAwait(false), "ponger").ConfigureAwait(false);
 
-        var pingerTask = Task.Run(() => pingerSocketeer.StartAsync(cancellation.Token).ConfigureAwait(false)).ConfigureAwait(false);
-        var pongerTask = Task.Run(() => pongerSocketeer.StartAsync(cancellation.Token).ConfigureAwait(false)).ConfigureAwait(false);
+        var pingerTask = Task.Run(() => pingerSocketeer.RunAsync(cancellation.Token).ConfigureAwait(false)).ConfigureAwait(false);
+        var pongerTask = Task.Run(() => pongerSocketeer.RunAsync(cancellation.Token).ConfigureAwait(false)).ConfigureAwait(false);
 
         // Pings come through the 'ping' group.
         var pings = await pongerSocketeer.JoinAsync("ping").ConfigureAwait(false);
@@ -60,7 +60,7 @@ public record Tests(ITestOutputHelper Output)
     public async Task DisposingSocketeerCompletesRunTask()
     {
         var socketeer = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        var runTask = Task.Run(async () => await socketeer.StartAsync());
+        var runTask = Task.Run(async () => await socketeer.RunAsync());
 
         socketeer.Dispose();
 
@@ -76,10 +76,10 @@ public record Tests(ITestOutputHelper Output)
 
         var cancellation = new CancellationTokenSource();
         await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+        _ = Task.Run(() => server.RunAsync(cancellation.Token));
 
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+        _ = Task.Run(() => client.RunAsync(cancellation.Token));
 
         var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup));
         var ev = new ManualResetEventSlim();
@@ -113,10 +113,10 @@ public record Tests(ITestOutputHelper Output)
 
         var cancellation = new CancellationTokenSource();
         await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+        _ = Task.Run(() => server.RunAsync(cancellation.Token));
 
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+        _ = Task.Run(() => client.RunAsync(cancellation.Token));
 
         var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup));
         var ev = new ManualResetEventSlim();
@@ -160,7 +160,7 @@ public record Tests(ITestOutputHelper Output)
         var messages = new List<string>();
 
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => client.StartAsync());
+        _ = Task.Run(() => client.RunAsync());
 
         var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenGetsOwnMessagesToGroup));
         var ev = new ManualResetEventSlim();
@@ -192,10 +192,10 @@ public record Tests(ITestOutputHelper Output)
 
         var cancellation = new CancellationTokenSource();
         await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+        _ = Task.Run(() => server.RunAsync(cancellation.Token));
 
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+        _ = Task.Run(() => client.RunAsync(cancellation.Token));
 
         var ev = new ManualResetEventSlim();
 
@@ -232,10 +232,10 @@ public record Tests(ITestOutputHelper Output)
 
         var cancellation = new CancellationTokenSource();
         await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => server.StartAsync(cancellation.Token));
+        _ = Task.Run(() => server.RunAsync(cancellation.Token));
 
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        _ = Task.Run(() => client.StartAsync(cancellation.Token));
+        _ = Task.Run(() => client.RunAsync(cancellation.Token));
 
         // Group ID format is To-From. 
         // So for the server, incoming = Server-Client, outgoing = Client-Server

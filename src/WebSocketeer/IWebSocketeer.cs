@@ -68,5 +68,5 @@ public interface IWebSocketeer : IObservable<KeyValuePair<string, ReadOnlyMemory
     /// <see cref="IAsyncDisposable"/>) or the underlying <see cref="WebSocket"/> is closed (by the client or the 
     /// server).
     /// </remarks>
-    Task StartAsync(CancellationToken cancellation = default);
+    Task RunAsync(CancellationToken cancellation = default);
 }

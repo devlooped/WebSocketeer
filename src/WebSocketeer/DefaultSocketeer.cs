@@ -17,7 +17,7 @@ class DefaultSocketeer : IWebSocketeer
     public DefaultSocketeer(WebSocket webSocket, string? displayName = default)
     {
         if (webSocket.State == WebSocketState.Open && webSocket.SubProtocol != "protobuf.webpubsub.azure.v1")
-            throw new InvalidOperationException("Subprotocol protobuf.webpubsub.azure.v1 is required.");
+            throw new InvalidOperationException("WebSocket.SubProtocol must be 'protobuf.webpubsub.azure.v1'.");
 
         this.webSocket = webSocket;
         DisplayName = displayName;
@@ -106,7 +106,7 @@ class DefaultSocketeer : IWebSocketeer
         writeBuffer.Clear();
     }
 
-    public Task StartAsync(CancellationToken cancellation = default)
+    public Task RunAsync(CancellationToken cancellation = default)
     {
         //Ensure protocol at this stage too, in case the webSocket was connected after initial creation.
         if (webSocket.State == WebSocketState.Open && webSocket.SubProtocol != "protobuf.webpubsub.azure.v1")
