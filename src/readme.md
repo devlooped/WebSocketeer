@@ -20,7 +20,7 @@ var serviceUri = serviceClient.GenerateClientAccessUri(
 Next simply connect the `WebSocketeer`:
 
 ```csharp
-await using IWebSocketeer socketeer = WebSockeer.ConnectAsync(serviceUri);
+await using IWebSocketeer socketeer = WebSocketeer.ConnectAsync(serviceUri);
 ```
 
 > NOTE: the `IWebSocketeer` interface implements both `IAsyncDisposable`, 
