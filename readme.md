@@ -31,7 +31,7 @@ The actual binary payloads you send/receive can of course be decoded into
 any format you need, including JSON if you just encode/decode it as UTF8 bytes.
 
 
-## Usage
+# Usage
 
 First acquire a proper client access URI for Azure Web PubSub using the 
 official client API, such as:
