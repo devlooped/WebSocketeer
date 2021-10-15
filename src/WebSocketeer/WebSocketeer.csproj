@@ -5,7 +5,7 @@
     <RootNamespace>Devlooped.Net</RootNamespace>
     <PackageId>WebSocketeer</PackageId>
     <ImplicitUsings>true</ImplicitUsings>
-    <Description>High-performance intuitive API for Azure Web PubSub protobuf subprotocol</Description>
+    <Description>A thin, intuitive, idiomatic and high-performance layer for Azure Web PubSub protobuf subprotocol.</Description>
   </PropertyGroup>
 
   <ItemGroup>

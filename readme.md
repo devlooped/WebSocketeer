@@ -1,7 +1,8 @@
 ![Icon](https://raw.githubusercontent.com/devlooped/WebSocketeer/main/assets/img/icon.png) WebSocketeer
 ============
 
-High-performance intuitive API for Azure Web PubSub protobuf subprotocol
+A thin, intuitive, idiomatic and high-performance API for 
+Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/azure-web-pubsub/reference-protobuf-webpubsub-subprotocol).
 
 [![Version](https://img.shields.io/nuget/v/WebSocketeer.svg?color=royalblue)](https://www.nuget.org/packages/WebSocketeer)
 [![Downloads](https://img.shields.io/nuget/dt/WebSocketeer.svg?color=green)](https://www.nuget.org/packages/WebSocketeer)
