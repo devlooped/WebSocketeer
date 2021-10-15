@@ -11,6 +11,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" PrivateAssets="all" />
     <PackageReference Include="DotNetConfig" Version="1.0.6" />
     <PackageReference Include="System.Reactive" Version="5.0.0" />
+    <PackageReference Include="Azure.Messaging.WebPubSub" Version="1.0.0-beta.3" />
   </ItemGroup>
 
   <ItemGroup>
