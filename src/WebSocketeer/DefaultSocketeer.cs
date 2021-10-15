@@ -10,17 +10,24 @@ class DefaultSocketeer : IWebSocketeer
     readonly CancellationTokenSource disposeCancellation = new();
     readonly AsyncLock writerGate = new();
     readonly ArrayBufferWriter<byte> writeBuffer = new(512);
+    Channel<ReadOnlyMemory<byte>> channel;
 
     readonly Subject<KeyValuePair<string, ReadOnlyMemory<byte>>> messages = new();
 
-    public DefaultSocketeer(WebSocket webSocket)
+    public DefaultSocketeer(WebSocket webSocket, string? displayName = default)
     {
         if (webSocket.State == WebSocketState.Open && webSocket.SubProtocol != "protobuf.webpubsub.azure.v1")
             throw new InvalidOperationException("Subprotocol protobuf.webpubsub.azure.v1 is required.");
 
         this.webSocket = webSocket;
+        DisplayName = displayName;
+        channel = webSocket.CreateChannel(displayName);
         status = new WebSocketStatus(webSocket);
     }
+
+    public string? DisplayName { get; private set; }
+
+    public override string? ToString() => DisplayName ?? base.ToString();
 
     internal IObservable<KeyValuePair<string, ReadOnlyMemory<byte>>> Messages => messages;
 
@@ -40,43 +47,23 @@ class DefaultSocketeer : IWebSocketeer
             throw new InvalidOperationException("Subprotocol protobuf.webpubsub.azure.v1 is required.");
 
         // Read until we receive the connected system mesage.
-        while (webSocket.State == WebSocketState.Open && !cancellation.IsCancellationRequested)
+        await foreach (var item in channel.Reader.ReadAllAsync(cancellation).ConfigureAwait(false))
         {
-            var pipe = new Pipe();
-            var received = await webSocket.ReceiveAsync(pipe.Writer.GetMemory(512), cancellation).ConfigureAwait(false);
-            while (!cancellation.IsCancellationRequested && !received.EndOfMessage && received.MessageType != WebSocketMessageType.Close)
+            var message = DownstreamMessage.Parser.ParseFrom(item.Span);
+
+            if (message.MessageCase == DownstreamMessage.MessageOneofCase.SystemMessage &&
+                message.SystemMessage.ConnectedMessage != null)
             {
-                if (received.Count == 0)
-                    break;
-
-                pipe.Writer.Advance(received.Count);
-                received = await webSocket.ReceiveAsync(pipe.Writer.GetMemory(512), cancellation).ConfigureAwait(false);
-            }
-
-            // We didn't get a complete message, we can't flush partial message.
-            if (cancellation.IsCancellationRequested || !received.EndOfMessage || received.MessageType == WebSocketMessageType.Close)
-                throw new OperationCanceledException();
-
-            // Advance the EndOfMessage bytes before flushing.
-            pipe.Writer.Advance(received.Count);
-            if (await pipe.Writer.FlushAsync(cancellation).ConfigureAwait(false) is var flushed && flushed.IsCompleted)
-                throw new OperationCanceledException();
-
-            // Read what we just wrote with the flush.
-            if (await pipe.Reader.ReadAsync(cancellation).ConfigureAwait(false) is var read && !read.IsCompleted)
-            {
-                var message = DownstreamMessage.Parser.ParseFrom(read.Buffer);
-
-                if (message.MessageCase == DownstreamMessage.MessageOneofCase.SystemMessage &&
-                    message.SystemMessage.ConnectedMessage != null)
+                ConnectionId = message.SystemMessage.ConnectedMessage.ConnectionId;
+                UserId = message.SystemMessage.ConnectedMessage.UserId;
+                if (DisplayName == null)
                 {
-                    ConnectionId = message.SystemMessage.ConnectedMessage.ConnectionId;
-                    UserId = message.SystemMessage.ConnectedMessage.UserId;
-                    return this;
+                    DisplayName = UserId;
+                    // Recreate channel with the new display name
+                    channel = webSocket.CreateChannel(UserId);
                 }
 
-                if (!cancellation.IsCancellationRequested)
-                    pipe.Reader.AdvanceTo(read.Buffer.End);
+                return this;
             }
         }
 
@@ -96,7 +83,7 @@ class DefaultSocketeer : IWebSocketeer
             },
         }.WriteTo(writeBuffer);
 
-        await webSocket.SendAsync(writeBuffer.WrittenMemory, WebSocketMessageType.Binary, true, token).ConfigureAwait(false);
+        await channel.Writer.WriteAsync(writeBuffer.WrittenMemory, token).ConfigureAwait(false);
         writeBuffer.Clear();
 
         return new DefaultSocketeerGroup(this, group);
@@ -115,7 +102,7 @@ class DefaultSocketeer : IWebSocketeer
             },
         }.WriteTo(writeBuffer);
 
-        await webSocket.SendAsync(writeBuffer.WrittenMemory, WebSocketMessageType.Binary, true, token).ConfigureAwait(false);
+        await channel.Writer.WriteAsync(writeBuffer.WrittenMemory, token).ConfigureAwait(false);
         writeBuffer.Clear();
     }
 
@@ -124,6 +111,9 @@ class DefaultSocketeer : IWebSocketeer
         //Ensure protocol at this stage too, in case the webSocket was connected after initial creation.
         if (webSocket.State == WebSocketState.Open && webSocket.SubProtocol != "protobuf.webpubsub.azure.v1")
             throw new InvalidOperationException("Subprotocol protobuf.webpubsub.azure.v1 is required.");
+
+        if (cancellation == default)
+            return ReadInputAsync(disposeCancellation.Token);
 
         var combined = CancellationTokenSource.CreateLinkedTokenSource(cancellation, disposeCancellation.Token);
         return ReadInputAsync(combined.Token);
@@ -146,64 +136,37 @@ class DefaultSocketeer : IWebSocketeer
             }
         }.WriteTo(writeBuffer);
 
-        await webSocket.SendAsync(writeBuffer.WrittenMemory, WebSocketMessageType.Binary, true, token).ConfigureAwait(false);
+        await channel.Writer.WriteAsync(writeBuffer.WrittenMemory, token).ConfigureAwait(false);
         writeBuffer.Clear();
     }
 
     public IDisposable Subscribe(IObserver<KeyValuePair<string, ReadOnlyMemory<byte>>> observer)
         => messages.Subscribe(observer);
 
-    async Task ReadInputAsync(CancellationToken cancellation = default)
+    async Task ReadInputAsync(CancellationToken cancellation)
     {
-        while (webSocket.State == WebSocketState.Open && !cancellation.IsCancellationRequested)
+        try
         {
-            try
+            await foreach (var item in channel.Reader.ReadAllAsync(cancellation).ConfigureAwait(false))
             {
-                var pipe = new Pipe();
-                var received = await webSocket.ReceiveAsync(pipe.Writer.GetMemory(512), cancellation).ConfigureAwait(false);
-                while (!cancellation.IsCancellationRequested && !received.EndOfMessage && received.MessageType != WebSocketMessageType.Close)
-                {
-                    if (received.Count == 0)
-                        break;
+                var message = DownstreamMessage.Parser.ParseFrom(item.Span);
 
-                    pipe.Writer.Advance(received.Count);
-                    received = await webSocket.ReceiveAsync(pipe.Writer.GetMemory(512), cancellation).ConfigureAwait(false);
-                }
-
-                // We didn't get a complete message, we can't flush partial message.
-                if (cancellation.IsCancellationRequested || !received.EndOfMessage || received.MessageType == WebSocketMessageType.Close)
+                if (message.MessageCase == DownstreamMessage.MessageOneofCase.DataMessage)
+                    messages.OnNext(KeyValuePair.Create(message.DataMessage.Group ?? message.DataMessage.From, message.DataMessage.Data.BinaryData.Memory));
+                else if (message.MessageCase == DownstreamMessage.MessageOneofCase.SystemMessage &&
+                    message.SystemMessage.DisconnectedMessage != null)
                     break;
-
-                // Advance the EndOfMessage bytes before flushing.
-                pipe.Writer.Advance(received.Count);
-                if (await pipe.Writer.FlushAsync(cancellation).ConfigureAwait(false) is var flushed && flushed.IsCompleted)
-                    break;
-
-                // Read what we just wrote with the flush.
-                if (await pipe.Reader.ReadAsync(cancellation).ConfigureAwait(false) is var read && !read.IsCompleted)
-                {
-                    var message = DownstreamMessage.Parser.ParseFrom(read.Buffer);
-
-                    if (message.MessageCase == DownstreamMessage.MessageOneofCase.DataMessage)
-                        messages.OnNext(KeyValuePair.Create(message.DataMessage.Group ?? message.DataMessage.From, message.DataMessage.Data.BinaryData.Memory));
-                    else if (message.MessageCase == DownstreamMessage.MessageOneofCase.SystemMessage &&
-                        message.SystemMessage.DisconnectedMessage != null)
-                        break;
-
-                    if (!cancellation.IsCancellationRequested)
-                        pipe.Reader.AdvanceTo(read.Buffer.End);
-                }
-            }
-            catch (Exception ex) when (ex is OperationCanceledException ||
-                                       ex is WebSocketException ||
-                                       ex is InvalidOperationException)
-            {
-                break;
             }
         }
-
-        // Preserve the close status since it might be triggered by a received Close message containing the status and description.
-        await CloseAsync(webSocket.CloseStatus ?? WebSocketCloseStatus.NormalClosure, webSocket.CloseStatusDescription);
+        catch (OperationCanceledException)
+        {
+        }
+        finally
+        {
+            // Preserve the close status since it might be triggered by a received Close message containing the status and description.
+            await CloseAsync(webSocket.CloseStatus ?? WebSocketCloseStatus.NormalClosure, webSocket.CloseStatusDescription)
+                .ConfigureAwait(false);
+        }
     }
 
     /// <summary>
@@ -215,7 +178,6 @@ class DefaultSocketeer : IWebSocketeer
             disposeCancellation.Cancel();
 
         webSocket.Dispose();
-        disposeCancellation.Dispose();
     }
 
     /// <summary>
@@ -226,7 +188,7 @@ class DefaultSocketeer : IWebSocketeer
         if (!disposeCancellation.IsCancellationRequested)
             disposeCancellation.Cancel();
 
-        await CloseAsync(WebSocketCloseStatus.NormalClosure);
+        await CloseAsync(WebSocketCloseStatus.NormalClosure).ConfigureAwait(false);
         Dispose();
     }
 
@@ -256,6 +218,7 @@ class DefaultSocketeer : IWebSocketeer
             webSocket.CloseOutputAsync(closeStatus, closeStatusDescription, default);
 
         // Don't wait indefinitely for the close to be acknowledged
-        await Task.WhenAny(closeTask, Task.Delay(closeTimeout));
+        await Task.WhenAny(closeTask, Task.Delay(closeTimeout)).ConfigureAwait(false);
+        channel.Writer.TryComplete();
     }
 }

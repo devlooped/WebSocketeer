@@ -1,4 +1,5 @@
-﻿using System.Reactive.Concurrency;
+﻿using System.Diagnostics;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 
 namespace Devlooped.Net;
@@ -8,71 +9,51 @@ public record Tests(ITestOutputHelper Output)
     [Fact]
     public async Task PingPong()
     {
-        string? message = default;
+        const string expectedMessage = "sending expected pong!";
+        string? actualMessage = default;
 
         using var cancellation = new CancellationTokenSource();
-        await using var pingerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        var pingerTask = Task.Run(() => pingerSocketeer.StartAsync(cancellation.Token));
-        var pongEv = new ManualResetEventSlim();
+        await using var pingerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync().ConfigureAwait(false), "pinger").ConfigureAwait(false);
+
+        Assert.NotNull(pingerSocketeer.ConnectionId);
+        Assert.NotNull(pingerSocketeer.UserId);
 
         // Pongs come through the 'pong' group. 
         var pongs = await pingerSocketeer.JoinAsync("pong").ConfigureAwait(false);
+        var pongEv = new ManualResetEventSlim();
 
-        var setEv = new ManualResetEventSlim();
-        _ = Task.Run(() =>
+        pongs.Subscribe(x =>
         {
-            while (pingerSocketeer.ConnectionId == null || pingerSocketeer.UserId == null)
-                Thread.Sleep(50);
-
-            setEv.Set();
-        }, cancellation.Token);
-
-        Assert.True(setEv.Wait(500), "Should have set ConnectionId and UserId before timeout");
-
-        pongs.Subscribe(async x =>
-        {
-            message = Encoding.UTF8.GetString(x.Span);
-            await pingerSocketeer.DisposeAsync();
+            actualMessage = Encoding.UTF8.GetString(x.Span);
+            cancellation.Cancel();
             Output.WriteLine("pinger done");
             pongEv.Set();
         });
 
-        await using var pongerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync());
-        var pongerTask = Task.Run(() => pongerSocketeer.StartAsync(cancellation.Token));
-        var pingEv = new ManualResetEventSlim();
+        await using var pongerSocketeer = await WebSocketeer.ConnectAsync(await ConnectAsync().ConfigureAwait(false), "ponger").ConfigureAwait(false);
+
+        var pingerTask = Task.Run(() => pingerSocketeer.StartAsync(cancellation.Token).ConfigureAwait(false)).ConfigureAwait(false);
+        var pongerTask = Task.Run(() => pongerSocketeer.StartAsync(cancellation.Token).ConfigureAwait(false)).ConfigureAwait(false);
 
         // Pings come through the 'ping' group.
         var pings = await pongerSocketeer.JoinAsync("ping").ConfigureAwait(false);
-
-        setEv.Reset();
-        _ = Task.Run(() =>
-        {
-            while (pongerSocketeer.ConnectionId == null || pongerSocketeer.UserId == null)
-                Thread.Sleep(50);
-
-            setEv.Set();
-        }, cancellation.Token);
-
-        Assert.True(setEv.Wait(500), "Should have set ConnectionId and UserId before timeout");
+        var pingEv = new ManualResetEventSlim();
 
         // Send pongs to the 'pong' responses group.
         pings.Subscribe(async x =>
         {
-            await pongerSocketeer.SendAsync("pong", Encoding.UTF8.GetBytes("PONG!"));
-            await pongerSocketeer.DisposeAsync();
-            Output.WriteLine("ponger done");
+            await pongerSocketeer.SendAsync("pong", Encoding.UTF8.GetBytes(expectedMessage)).ConfigureAwait(false);
             pingEv.Set();
+            await pongerSocketeer.DisposeAsync().ConfigureAwait(false);
+            Output.WriteLine("ponger done");
         });
 
         await pingerSocketeer.SendAsync("ping", Encoding.UTF8.GetBytes("ping")).ConfigureAwait(false);
 
-        Assert.True(pingEv.Wait(1000), "Expected to receive ping message before timeout.");
-        Assert.True(pongEv.Wait(1000), "Expected to receive pong message before timeout.");
+        Assert.True(pingEv.Wait(Debugger.IsAttached ? int.MaxValue : 2000), "Expected to receive ping message before timeout.");
+        Assert.True(pongEv.Wait(Debugger.IsAttached ? int.MaxValue : 2000), "Expected to receive pong message before timeout.");
 
-        await pingerTask;
-        await pongerTask;
-
-        Assert.Equal("PONG!", message);
+        Assert.Equal(expectedMessage, actualMessage);
     }
 
     [Fact]
@@ -83,7 +64,7 @@ public record Tests(ITestOutputHelper Output)
 
         socketeer.Dispose();
 
-        var timeoutTask = Task.Delay(100);
+        var timeoutTask = Task.Delay(500);
         if (await Task.WhenAny(runTask, timeoutTask) == timeoutTask)
             Assert.False(true, "Expected RunAsync to complete before timeout");
     }
@@ -111,14 +92,14 @@ public record Tests(ITestOutputHelper Output)
 
         await server.SendAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup), Encoding.UTF8.GetBytes("first"));
 
-        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
         Assert.Equal("first", messages[0]);
 
         ev.Reset();
         await server.SendAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup), Encoding.UTF8.GetBytes("second"));
 
-        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Equal(2, messages.Count);
         Assert.Equal("second", messages[1]);
 
@@ -148,7 +129,7 @@ public record Tests(ITestOutputHelper Output)
 
         await server.SendAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup), Encoding.UTF8.GetBytes("first"));
 
-        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
         Assert.Equal("first", messages[0]);
 
@@ -166,7 +147,7 @@ public record Tests(ITestOutputHelper Output)
 
         await server.SendAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup), Encoding.UTF8.GetBytes("second"));
 
-        Assert.True(ev.Wait(1000), "Expected second group client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected second group client to receive message before timeout.");
         Assert.Equal(2, messages.Count);
         Assert.Equal("second", messages[1]);
 
@@ -192,14 +173,14 @@ public record Tests(ITestOutputHelper Output)
 
         await client.SendAsync(nameof(WhenGroupJoined_ThenGetsOwnMessagesToGroup), Encoding.UTF8.GetBytes("first"));
 
-        Assert.True(ev.Wait(500), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
         Assert.Equal("first", messages[0]);
 
         ev.Reset();
         await client.SendAsync(nameof(WhenGroupJoined_ThenGetsOwnMessagesToGroup), Encoding.UTF8.GetBytes("second"));
 
-        Assert.True(ev.Wait(500), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Equal(2, messages.Count);
         Assert.Equal("second", messages[1]);
     }
@@ -230,14 +211,14 @@ public record Tests(ITestOutputHelper Output)
 
         await server.SendAsync(nameof(CanSubscribeToAllMessagesFromAnyGroup), Encoding.UTF8.GetBytes("first"));
 
-        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
         Assert.Equal("first", messages[0]);
 
         ev.Reset();
         await server.SendAsync(nameof(CanSubscribeToAllMessagesFromAnyGroup) + "2", Encoding.UTF8.GetBytes("second"));
 
-        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Equal(2, messages.Count);
         Assert.Equal("second", messages[1]);
 
@@ -274,7 +255,7 @@ public record Tests(ITestOutputHelper Output)
 
         await clientChannel.SendAsync(Encoding.UTF8.GetBytes("ping"));
 
-        Assert.True(ev.Wait(1000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
         Assert.Equal("ping", messages[0]);
         cancellation.Cancel();
@@ -288,9 +269,9 @@ public record Tests(ITestOutputHelper Output)
         {
             roles = new[]
             {
-                    "webpubsub.joinLeaveGroup",
-                    "webpubsub.sendToGroup"
-                };
+                "webpubsub.joinLeaveGroup",
+                "webpubsub.sendToGroup"
+            };
         }
 
         var serviceClient = new WebPubSubServiceClient(Configuration.GetString("Azure", "WebPubSub") ??
