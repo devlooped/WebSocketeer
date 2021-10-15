@@ -1,19 +1,12 @@
 
 
-## [v0.9.0-beta](https://github.com/devlooped/WebSocketeer/tree/v0.9.0-beta) (2021-10-15)
+## [v0.9.0](https://github.com/devlooped/WebSocketeer/tree/v0.9.0) (2021-10-15)
 
-[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v0.9.0-alpha...v0.9.0-beta)
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/9469bf1ba55da01bce1e580bea52a67333993a64...v0.9.0)
 
 :sparkles: Implemented enhancements:
 
 - Cleanup unused dependencies, improve packaging [\#10](https://github.com/devlooped/WebSocketeer/issues/10)
-
-## [v0.9.0-alpha](https://github.com/devlooped/WebSocketeer/tree/v0.9.0-alpha) (2021-10-15)
-
-[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/9469bf1ba55da01bce1e580bea52a67333993a64...v0.9.0-alpha)
-
-:sparkles: Implemented enhancements:
-
 - Switch to WebSocketChannel for low-level WebSocket reading/writing [\#9](https://github.com/devlooped/WebSocketeer/issues/9)
 - When using request/response patterns a split group is useful [\#6](https://github.com/devlooped/WebSocketeer/issues/6)
 - Allow getting a group-filtered view over a socketeer [\#5](https://github.com/devlooped/WebSocketeer/issues/5)
