@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGetizer" Version="0.7.4" PrivateAssets="all" />
+    <PackageReference Include="NuGetizer" Version="0.7.5" PrivateAssets="all" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="all" />
 
     <PackageReference Include="Google.Protobuf" Version="3.18.1" />
