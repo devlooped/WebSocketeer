@@ -69,6 +69,8 @@ jobs:
           echo 'export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"' >> .bash_profile
 
       - name: 🧪 test
+        env:
+          AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
         uses: ./.github/workflows/test
 
       - name: 📦 pack
