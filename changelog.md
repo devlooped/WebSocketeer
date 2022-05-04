@@ -1,4 +1,14 @@
+# Changelog
 
+## [v1.0.0](https://github.com/devlooped/WebSocketeer/tree/v1.0.0) (2022-05-04)
+
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v0.9.1...v1.0.0)
+
+:twisted_rightwards_arrows: Merged:
+
+- Make tests more resilient [\#27](https://github.com/devlooped/WebSocketeer/pull/27) (@kzu)
+- Bump dependencies [\#26](https://github.com/devlooped/WebSocketeer/pull/26) (@kzu)
+- Bump RxFree from 1.0.5 to 1.1.0 [\#25](https://github.com/devlooped/WebSocketeer/pull/25) (@kzu)
 
 ## [v0.9.1](https://github.com/devlooped/WebSocketeer/tree/v0.9.1) (2021-10-15)
 
