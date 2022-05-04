@@ -16,7 +16,9 @@
 /// </para>
 /// <para>
 /// Incoming messages can be accessed by either joining a group via <see cref="JoinAsync"/> 
-/// and subscribing to it or directly by subscribing to the entire <see cref="IWebSocketeer"/>.
+/// and subscribing to the returned <see cref="IWebSocketeerGroup"/> observable, or directly 
+/// by subscribing to the entire <see cref="IWebSocketeer"/> and receiving messages from all 
+/// joined groups.
 /// </para>
 /// </remarks>
 public interface IWebSocketeer : IObservable<KeyValuePair<string, ReadOnlyMemory<byte>>>, IAsyncDisposable, IDisposable
