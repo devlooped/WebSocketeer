@@ -73,6 +73,7 @@ public record Tests(ITestOutputHelper Output)
     public async Task WhenGroupJoined_ThenGetsMessagesToGroup()
     {
         var messages = new List<string>();
+        var groupId = Guid.NewGuid().ToString();
 
         var cancellation = new CancellationTokenSource();
         await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
@@ -81,7 +82,7 @@ public record Tests(ITestOutputHelper Output)
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
         _ = Task.Run(() => client.RunAsync(cancellation.Token));
 
-        var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup));
+        var group = await client.JoinAsync(groupId);
         var ev = new ManualResetEventSlim();
 
         group.Subscribe(x =>
@@ -90,16 +91,16 @@ public record Tests(ITestOutputHelper Output)
             ev.Set();
         });
 
-        await server.SendAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup), Encoding.UTF8.GetBytes("first"));
+        await server.SendAsync(groupId, Encoding.UTF8.GetBytes("first"));
 
-        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(5000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
         Assert.Equal("first", messages[0]);
 
         ev.Reset();
-        await server.SendAsync(nameof(WhenGroupJoined_ThenGetsMessagesToGroup), Encoding.UTF8.GetBytes("second"));
+        await server.SendAsync(groupId, Encoding.UTF8.GetBytes("second"));
 
-        Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
+        Assert.True(ev.Wait(5000), "Expected client to receive message before timeout.");
         Assert.Equal(2, messages.Count);
         Assert.Equal("second", messages[1]);
 
@@ -110,6 +111,7 @@ public record Tests(ITestOutputHelper Output)
     public async Task WhenGroupJoined_ThenCanGetSecondJoinedGroup()
     {
         var messages = new List<string>();
+        var groupId = Guid.NewGuid().ToString();
 
         var cancellation = new CancellationTokenSource();
         await using var server = await WebSocketeer.ConnectAsync(await ConnectAsync());
@@ -118,7 +120,7 @@ public record Tests(ITestOutputHelper Output)
         await using var client = await WebSocketeer.ConnectAsync(await ConnectAsync());
         _ = Task.Run(() => client.RunAsync(cancellation.Token));
 
-        var group = await client.JoinAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup));
+        var group = await client.JoinAsync(groupId);
         var ev = new ManualResetEventSlim();
 
         var subs = group.Subscribe(x =>
@@ -127,7 +129,7 @@ public record Tests(ITestOutputHelper Output)
             ev.Set();
         });
 
-        await server.SendAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup), Encoding.UTF8.GetBytes("first"));
+        await server.SendAsync(groupId, Encoding.UTF8.GetBytes("first"));
 
         Assert.True(ev.Wait(2000), "Expected client to receive message before timeout.");
         Assert.Single(messages);
@@ -138,14 +140,14 @@ public record Tests(ITestOutputHelper Output)
         // Stop listening from the JoinAsync group.
         subs.Dispose();
 
-        client.Joined(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup))
+        client.Joined(groupId)
             .Subscribe(x =>
             {
                 messages.Add(Encoding.UTF8.GetString(x.Span));
                 ev.Set();
             });
 
-        await server.SendAsync(nameof(WhenGroupJoined_ThenCanGetSecondJoinedGroup), Encoding.UTF8.GetBytes("second"));
+        await server.SendAsync(groupId, Encoding.UTF8.GetBytes("second"));
 
         Assert.True(ev.Wait(2000), "Expected second group client to receive message before timeout.");
         Assert.Equal(2, messages.Count);
