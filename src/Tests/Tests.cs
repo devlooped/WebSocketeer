@@ -263,7 +263,7 @@ public record Tests(ITestOutputHelper Output)
 
     static readonly Config Configuration = Config.Build();
 
-    static Uri GetServiceUri(params string[] roles)
+    static async Task<Uri> GetServiceUriAsync(params string[] roles)
     {
         if (roles.Length == 0)
         {
@@ -274,10 +274,11 @@ public record Tests(ITestOutputHelper Output)
             };
         }
 
-        var serviceClient = new WebPubSubServiceClient(Configuration.GetString("Azure", "WebPubSub") ??
-            Environment.GetEnvironmentVariable("AZURE_WEBPUBSUB"), "test");
+        var serviceClient = new WebPubSubServiceClient(
+            Environment.GetEnvironmentVariable("AZURE_WEBPUBSUB") ?? Configuration.GetString("Azure", "WebPubSub"),
+            "test");
 
-        return serviceClient.GenerateClientAccessUri(
+        return await serviceClient.GetClientAccessUriAsync(
             userId: Guid.NewGuid().ToString("N"),
             roles: roles);
     }
@@ -286,7 +287,7 @@ public record Tests(ITestOutputHelper Output)
     {
         var client = new ClientWebSocket();
         client.Options.AddSubProtocol("protobuf.webpubsub.azure.v1");
-        await client.ConnectAsync(GetServiceUri(), default);
+        await client.ConnectAsync(await GetServiceUriAsync(), default);
         return client;
     }
 }
