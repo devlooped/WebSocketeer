@@ -1,4 +1,6 @@
-﻿namespace Devlooped.Net;
+﻿using System.Reactive.Subjects;
+
+namespace Devlooped.Net;
 
 class DefaultSocketeer : IWebSocketeer
 {
