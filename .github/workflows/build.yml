@@ -11,6 +11,7 @@ on:
       - code-of-conduct.md
       - security.md
       - support.md
+      - readme.md
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -69,8 +70,6 @@ jobs:
           echo 'export PATH="/usr/local/opt/grep/libexec/gnubin:$PATH"' >> .bash_profile
 
       - name: 🧪 test
-        env:
-          AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
         uses: ./.github/workflows/test
 
       - name: 📦 pack
