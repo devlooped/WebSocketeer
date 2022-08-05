@@ -31,6 +31,8 @@ jobs:
 
       - name: 🧪 test
         uses: ./.github/workflows/test
+        env:
+          AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
 
       - name: 📦 pack
         run: dotnet pack -m:1 -p:version=${GITHUB_REF#refs/*/v}
