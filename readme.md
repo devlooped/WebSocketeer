@@ -196,3 +196,6 @@ await using IWebSocketeerGroup serverChannel = socketeer.Split(
 serverChannel.Subscribe(async x => /* process responses */);
 await serverChannel.SendAsync(request);
 ```
+
+
+<!-- include docs/footer.md -->
