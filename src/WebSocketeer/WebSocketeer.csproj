@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
 
     <PackageReference Include="Google.Protobuf" Version="3.21.4" />
-    <PackageReference Include="Grpc.AspNetCore" Version="2.47.0" Pack="false" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.49.0" Pack="false" />
 
     <PackageReference Include="RxFree" Version="1.1.1" PrivateAssets="all" />
     <PackageReference Include="WebSocketChannel" Version="0.9.2" />
