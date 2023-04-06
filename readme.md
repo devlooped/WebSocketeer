@@ -200,7 +200,6 @@ await serverChannel.SendAsync(request);
 <!-- #content -->
 <!-- #sponsors -->
 <!-- include https://github.com/devlooped/sponsors/raw/main/footer.md -->
-
 # Sponsors 
 
 <!-- sponsors.md -->
