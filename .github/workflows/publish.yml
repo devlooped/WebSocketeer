@@ -21,18 +21,11 @@ jobs:
           submodules: recursive
           fetch-depth: 0
 
-      - name: ⚙ dotnet
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: '6.0.x'
-
       - name: 🙏 build
         run: dotnet build -m:1 -p:version=${GITHUB_REF#refs/*/v}
 
       - name: 🧪 test
         uses: ./.github/workflows/test
-        env:
-          AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}
 
       - name: 📦 pack
         run: dotnet pack -m:1 -p:version=${GITHUB_REF#refs/*/v}
