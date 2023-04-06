@@ -1,18 +1,24 @@
 # Changelog
 
-## [v1.0.0](https://github.com/devlooped/WebSocketeer/tree/v1.0.0) (2022-05-04)
+## [v1.0.1](https://github.com/devlooped/WebSocketeer/tree/v1.0.1) (2023-04-06)
 
-[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v0.9.1...v1.0.0)
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v1.0.0...v1.0.1)
+
+:sparkles: Implemented enhancements:
+
+- Improve readme inclusions [\#75](https://github.com/devlooped/WebSocketeer/pull/75) (@kzu)
+- 💟 Add SponsorLink to ensure ongoing maintenance [\#74](https://github.com/devlooped/WebSocketeer/pull/74) (@kzu)
+
+## [v1.0.0](https://github.com/devlooped/WebSocketeer/tree/v1.0.0) (2022-08-08)
+
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v0.9.0...v1.0.0)
 
 :twisted_rightwards_arrows: Merged:
 
+- +M▼ includes [\#38](https://github.com/devlooped/WebSocketeer/pull/38) (@github-actions[bot])
 - Make tests more resilient [\#27](https://github.com/devlooped/WebSocketeer/pull/27) (@kzu)
 - Bump dependencies [\#26](https://github.com/devlooped/WebSocketeer/pull/26) (@kzu)
 - Bump RxFree from 1.0.5 to 1.1.0 [\#25](https://github.com/devlooped/WebSocketeer/pull/25) (@kzu)
-
-## [v0.9.1](https://github.com/devlooped/WebSocketeer/tree/v0.9.1) (2021-10-15)
-
-[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v0.9.0...v0.9.1)
 
 ## [v0.9.0](https://github.com/devlooped/WebSocketeer/tree/v0.9.0) (2021-10-15)
 
