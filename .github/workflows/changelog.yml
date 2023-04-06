@@ -14,7 +14,8 @@ jobs:
           name: ${{ secrets.BOT_NAME }}
           email: ${{ secrets.BOT_EMAIL }}
           gh_token: ${{ secrets.GH_TOKEN }}
-
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          
       - name: 🤘 checkout
         uses: actions/checkout@v2
         with:
@@ -30,7 +31,7 @@ jobs:
       - name: ⚙ changelog
         run: |
           gem install github_changelog_generator 
-          github_changelog_generator --user ${GITHUB_REPOSITORY%/*} --project ${GITHUB_REPOSITORY##*/} --token $GH_TOKEN --o changelog.md --config-file .github/.github_changelog_generator
+          github_changelog_generator --user ${GITHUB_REPOSITORY%/*} --project ${GITHUB_REPOSITORY##*/} --token $GH_TOKEN --o changelog.md --config-file .github/workflows/changelog.config
 
       - name: 🚀 changelog
         run: |
