@@ -31,7 +31,7 @@ payloads.
 The actual binary payloads you send/receive can of course be decoded into 
 any format you need, including JSON if you just encode/decode it as UTF8 bytes.
 
-
+<!-- #content -->
 # Usage
 
 First acquire a proper client access URI for Azure Web PubSub using the 
@@ -197,7 +197,10 @@ serverChannel.Subscribe(async x => /* process responses */);
 await serverChannel.SendAsync(request);
 ```
 
+<!-- #content -->
+<!-- #sponsors -->
 <!-- include https://github.com/devlooped/sponsors/raw/main/footer.md -->
+
 # Sponsors 
 
 <!-- sponsors.md -->
