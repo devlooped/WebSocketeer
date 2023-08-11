@@ -14,11 +14,11 @@
     <PackageReference Include="Google.Protobuf" Version="3.22.1" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.52.0" Pack="false" />
     <PackageReference Include="RxFree" Version="1.1.2" PrivateAssets="all" />
-    <PackageReference Include="WebSocketChannel" Version="1.0.1" />
+    <PackageReference Include="WebSocketChannel" Version="1.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CodeAnalysis\CodeAnalysis.csproj" ReferenceOutputAssembly="false" OutputItemType="None" />
+    <!--<ProjectReference Include="..\CodeAnalysis\CodeAnalysis.csproj" ReferenceOutputAssembly="false" OutputItemType="None" />-->
   </ItemGroup>
   
   <ItemGroup>
