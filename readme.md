@@ -7,7 +7,7 @@ Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/a
 [![Version](https://img.shields.io/nuget/v/WebSocketeer.svg?color=royalblue)](https://www.nuget.org/packages/WebSocketeer)
 [![Downloads](https://img.shields.io/nuget/dt/WebSocketeer.svg?color=green)](https://www.nuget.org/packages/WebSocketeer)
 [![License](https://img.shields.io/github/license/devlooped/WebSocketeer.svg?color=blue)](https://github.com/devlooped/WebSocketeer/blob/main/license.txt)
-[![Build](https://github.com/devlooped/WebSocketeer/workflows/build/badge.svg?branch=main)](https://github.com/devlooped/WebSocketeer/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/devlooped/WebSocketeer/build.yml)](https://github.com/devlooped/WebSocketeer/actions)
 
 # What
 
