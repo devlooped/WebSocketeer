@@ -1,3 +1,5 @@
+<!-- include https://github.com/devlooped/.github/raw/main/sponsorlink.md -->
+
 A thin, intuitive, idiomatic and high-performance API for 
 Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/azure-web-pubsub/reference-protobuf-webpubsub-subprotocol).
 
