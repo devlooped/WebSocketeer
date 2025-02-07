@@ -9,6 +9,8 @@ Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/a
 [![License](https://img.shields.io/github/license/devlooped/WebSocketeer.svg?color=blue)](https://github.com/devlooped/WebSocketeer/blob/main/license.txt)
 [![Build](https://img.shields.io/github/actions/workflow/status/devlooped/WebSocketeer/build.yml)](https://github.com/devlooped/WebSocketeer/actions)
 
+<!-- include https://github.com/devlooped/.github/raw/main/sponsorlink.md -->
+
 # What
 
 Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/azure-web-pubsub/reference-protobuf-webpubsub-subprotocol) 

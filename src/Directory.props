@@ -1,0 +1,8 @@
+<Project>
+
+  <PropertyGroup Label="NuGet">
+    <Product>WebSocketeer</Product>
+    <FundingGrace>30</FundingGrace>
+  </PropertyGroup>
+
+</Project>
