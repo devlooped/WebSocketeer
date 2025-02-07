@@ -96,11 +96,6 @@
 	sha = 0683ee777d7d878d4bf013d7deea352685135a05
 	etag = b8d789b5b6bea017cdcc8badcea888ad78de3e34298efca922054e9fb0e7b6b9
 	weak
-[file "src/nuget.config"]
-	url = https://github.com/devlooped/oss/blob/main/src/nuget.config
-	sha = 354f54c22c9b1619221fba99b99ea1dc215266b4
-	etag = c200cff9d9ca61fe06b7d535b233cad330613c47b34433e8a117abbca4c34eb9
-	weak
 [file ".github/workflows/includes.yml"]
 	url = https://github.com/devlooped/oss/blob/main/.github/workflows/includes.yml
 	sha = 85829f2510f335f4a411867f3dbaaa116c3ab3de
