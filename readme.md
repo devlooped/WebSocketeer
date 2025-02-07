@@ -10,6 +10,10 @@ Azure Web PubSub [protobuf subprotocol](https://docs.microsoft.com/en-us/azure/a
 [![Build](https://img.shields.io/github/actions/workflow/status/devlooped/WebSocketeer/build.yml)](https://github.com/devlooped/WebSocketeer/actions)
 
 <!-- include https://github.com/devlooped/.github/raw/main/sponsorlink.md -->
+*This project uses [SponsorLink](https://github.com/devlooped#sponsorlink) 
+and may issue IDE-only warnings if no active sponsorship is detected.*
+
+<!-- https://github.com/devlooped/.github/raw/main/sponsorlink.md -->
 
 # What
 
