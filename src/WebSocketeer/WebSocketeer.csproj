@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!--<ProjectReference Include="..\CodeAnalysis\CodeAnalysis.csproj" ReferenceOutputAssembly="false" OutputItemType="None" />-->
+    <ProjectReference Include="..\CodeAnalysis\CodeAnalysis.csproj" ReferenceOutputAssembly="false" OutputItemType="None" />
   </ItemGroup>
   
   <ItemGroup>
