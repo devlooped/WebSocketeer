@@ -1,5 +1,9 @@
 # Changelog
 
+## [v1.1.0](https://github.com/devlooped/WebSocketeer/tree/v1.1.0) (2025-02-08)
+
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v1.1.0-beta...v1.1.0)
+
 ## [v1.1.0-beta](https://github.com/devlooped/WebSocketeer/tree/v1.1.0-beta) (2025-02-08)
 
 [Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v1.0.1...v1.1.0-beta)
