@@ -1,5 +1,18 @@
 # Changelog
 
+## [v1.1.0-beta](https://github.com/devlooped/WebSocketeer/tree/v1.1.0-beta) (2025-02-08)
+
+[Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v1.0.1...v1.1.0-beta)
+
+:sparkles: Implemented enhancements:
+
+- Upgrade to SponsorLink v2 [\#96](https://github.com/devlooped/WebSocketeer/pull/96) (@kzu)
+
+:twisted_rightwards_arrows: Merged:
+
+- Remove unused sync'ed files [\#104](https://github.com/devlooped/WebSocketeer/pull/104) (@kzu)
+- Remove current implementation of SponsorLink for now [\#93](https://github.com/devlooped/WebSocketeer/pull/93) (@kzu)
+
 ## [v1.0.1](https://github.com/devlooped/WebSocketeer/tree/v1.0.1) (2023-04-06)
 
 [Full Changelog](https://github.com/devlooped/WebSocketeer/compare/v1.0.0...v1.0.1)
