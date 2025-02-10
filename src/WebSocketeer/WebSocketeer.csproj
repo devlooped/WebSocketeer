@@ -14,7 +14,7 @@
     <PackageReference Include="Google.Protobuf" Version="3.27.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" Pack="false" />
     <PackageReference Include="RxFree" Version="1.1.2" PrivateAssets="all" />
-    <PackageReference Include="WebSocketChannel" Version="1.1.0" />
+    <PackageReference Include="WebSocketChannel" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup>
