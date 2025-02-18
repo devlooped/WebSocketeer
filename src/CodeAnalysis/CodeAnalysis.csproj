@@ -16,8 +16,8 @@
   <ItemGroup>
     <PackageReference Include="NuGetizer" Version="1.2.4" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" Pack="false" />
-     <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
- </ItemGroup>
+    <PackageReference Include="PolySharp" Version="1.14.1" PrivateAssets="All" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Update="WebSocketeer.targets" PackFolder="buildTransitive" />
