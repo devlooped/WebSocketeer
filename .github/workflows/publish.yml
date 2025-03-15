@@ -15,7 +15,8 @@ env:
   VersionLabel: ${{ github.ref }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
   MSBUILDTERMINALLOGGER: auto
-    
+  SLEET_FEED_URL: ${{ vars.SLEET_FEED_URL }}
+      
 jobs:
   publish:
     runs-on: ${{ vars.PUBLISH_AGENT || 'ubuntu-latest' }}
@@ -38,8 +39,6 @@ jobs:
         run: dotnet build -m:1 -bl:build.binlog
 
       - name: 🧪 test
-        env:
-          AZURE_WEBPUBSUB: ${{ secrets.AZURE_WEBPUBSUB }}        
         run: |
           dotnet tool update -g dotnet-retest
           dotnet retest -- --no-build
