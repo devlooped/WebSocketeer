@@ -36,7 +36,7 @@ public interface IWebSocketeer : IObservable<KeyValuePair<string, ReadOnlyMemory
     /// <summary>
     /// Gets the underlying <see cref="WebSocket"/> status.
     /// </summary>
-    public WebSocketStatus SocketStatus { get; }
+    WebSocketStatus SocketStatus { get; }
 
     /// <summary>
     /// Joins a group and returns an <see cref="IWebSocketeerGroup"/> to 
